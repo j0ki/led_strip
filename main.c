@@ -243,7 +243,7 @@ int main(int argc, char** argv)
         if (error_level > 0) {
             p_position = 0;
             speed = 0;
-            init_snake();
+            snake_set_position(&snake, 0);
         }
 
         if (error_level >= 4) {
