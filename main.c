@@ -32,6 +32,8 @@
 
 #include "adc.h"
 
+#include "pendulum.h"
+
 #include <avr/io.h>
 
 void debug_led_on() {
@@ -268,8 +270,19 @@ int main(int argc, char **argv)
         uint16_t target_time = get_target_time();
 
         //~ uint16_t current_position = ((uint32_t)time) * 30 / ((uint32_t)target_time);
-        //this should be much quicker, but it's 2 extra steps
-        uint16_t current_position = time / (target_time/32);
+        //~ uint16_t current_position = time / (target_time / 30);
+        //this should be quicker, but it's 2 extra steps:
+        //~ uint16_t current_position = time / (target_time/32);
+
+        // the result is a fixed point number between 0 and 65536
+        uint32_t relative_time = (((uint32_t)time)<<16) / target_time;
+        // this can happen, when the pendulum period changes.
+        if( (1<<16) >= relative_time ) {
+            relative_time = (1<<16) - 1;
+        }
+        uint16_t current_position = get_position(relative_time);
+
+
 
         int step = current_position - p_position;
 
