@@ -22,7 +22,39 @@
  */
 
 
+// 28 positions
 uint16_t position_lut[] = {
+1491,
+2990,
+4505,
+6044,
+7618,
+9239,
+10922,
+12688,
+14565,
+16596,
+18854,
+21480,
+24835,
+32768,
+40700,
+44055,
+46681,
+48939,
+50970,
+52847,
+54613,
+56296,
+57917,
+59491,
+61030,
+62545,
+64044,
+65535
+}
+
+uint16_t position_lut_30[] = {
 1391,
 2789,
 4200,
@@ -89,10 +121,10 @@ uint16_t alt_lut[] = {
 }
 
 int get_position(uint16_t time) {
-    for( int i = 0; i < 30; i++ ) {
+    for( int i = 0; i < 28; i++ ) {
         if( time <= position_lut[i] ) {
             return i;
         }
     }
-    return 30; // this will not happen
+    return 28; // this will not happen
 }
