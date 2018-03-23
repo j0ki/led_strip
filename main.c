@@ -204,6 +204,7 @@ void init_snake()
     snake_init(&snake);
     for (int i = 0; i < 9; i++) {
         snake_step(&snake);
+        snake_draw(&snake);
         scan_strip();
     }
 }
@@ -308,6 +309,7 @@ int main(int argc, char** argv)
 
         for (int i = 0; i < step; i++) {
             snake_step(&snake);
+            snake_draw(&snake);
         }
         if (0 < step) {
             cli();
