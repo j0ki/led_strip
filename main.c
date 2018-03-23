@@ -196,10 +196,13 @@ struct Snake snake;
 void init_snake()
 {
     snake_init(&snake);
-    for (int i = 0; i < 9; i++) {
-        snake_step(&snake);
+    for (int i = 0; i < 30; i++) {
+        snake_set_position(&snake, i);
         snake_draw(&snake);
+        cli();
         scan_strip();
+        sei();
+        _delay_ms(10);
     }
 }
 
