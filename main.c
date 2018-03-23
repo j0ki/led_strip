@@ -299,23 +299,23 @@ int main(int argc, char** argv)
         }
         uint16_t current_position = get_position(relative_time);
 
-        int step = current_position - p_position;
-
         if (1 < current_position && current_position < 10) {
             coil_on();
         } else {
             coil_off();
         }
 
-        for (int i = 0; i < step; i++) {
-            snake_step(&snake);
-            snake_draw(&snake);
-        }
-        if (0 < step) {
+        int step = current_position - p_position;
+
+        snake_set_position(&snake, current_position);
+        snake_draw(&snake);
+
+        if (current_position > p_position) {
             cli();
             scan_strip();
             sei();
         }
+        p_position = current_position;
     }
     return 0;
 }
