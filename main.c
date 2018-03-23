@@ -191,12 +191,6 @@ void process_pendulum(uint16_t time)
         measured_time_right = time;
 }
 
-void wait_until(uint16_t time)
-{
-    while (time > get_time()) {
-    }
-}
-
 struct Snake snake;
 
 void init_snake()
