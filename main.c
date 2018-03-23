@@ -229,8 +229,6 @@ int main(int argc, char** argv)
 
     init_snake();
 
-    int led_step_scale = 1;
-
     int p_position = 0;
 
     int speed = 0;
@@ -303,8 +301,6 @@ int main(int argc, char** argv)
         } else {
             coil_off();
         }
-
-        int step = current_position - p_position;
 
         snake_set_position(&snake, snake_offset + current_position);
 
