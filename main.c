@@ -36,31 +36,37 @@
 
 #include <avr/io.h>
 
-void debug_led_on() {
+void debug_led_on()
+{
     PORTD &= ~_BV(PD1);
 }
 
-void debug_led_off() {
+void debug_led_off()
+{
     PORTD |= _BV(PD1);
 }
 
 volatile int error_level;
 
-void error_level_init() {
+void error_level_init()
+{
     error_level = 5;
 }
 
-inline void watchdog_bark() {
-    if ( error_level < 10 ) {
+inline void watchdog_bark()
+{
+    if (error_level < 10) {
         error_level += 3;
     }
 }
 
-ISR(TIMER1_OVF_vect) {
+ISR(TIMER1_OVF_vect)
+{
     watchdog_bark();
 }
 
-void timer_reset() {
+void timer_reset()
+{
     cli();
     //the order of writing registers is important
     //_T_imer _C_ou_NT_er for timer_1_ (high and low)
@@ -69,7 +75,8 @@ void timer_reset() {
     sei();
 }
 
-void timer_init() {
+void timer_init()
+{
     //disable all interrupt while setting up timer
     cli();
     //timer interrupt mask register
@@ -92,8 +99,6 @@ void timer_init() {
     // _T_imer _O_verflow _I_nterrupt _E_nable at timer_1_
     TIMSK |= _BV(TOIE1);
 
-
-
     //the order of writing registers is important
     //set timer compare register to 2 seconds
     //OCR1H = 62000 / 256;
@@ -102,7 +107,8 @@ void timer_init() {
     sei();
 }
 
-uint16_t timer_read() {
+uint16_t timer_read()
+{
     cli();
     //the order of reading registers is important
     volatile uint16_t t = TCNT1L;
@@ -111,11 +117,13 @@ uint16_t timer_read() {
     return t;
 }
 
-uint16_t get_time() {
+uint16_t get_time()
+{
     return timer_read();
 }
 
-void coil_init() {
+void coil_init()
+{
     //debug led output pin
     DDRD |= _BV(PD1);
 
@@ -124,7 +132,6 @@ void coil_init() {
 
     //coil sensor int0 input pin
     DDRD &= ~_BV(PD2);
-
 
     //maybe use int0 later for finer tuning
     //general interupt control register:
@@ -136,11 +143,13 @@ void coil_init() {
     //MCUCR |= _BV(ISC01);
 }
 
-void coil_on() {
+void coil_on()
+{
     PORTD |= _BV(PD0);
 }
 
-void coil_off() {
+void coil_off()
+{
     PORTD &= ~_BV(PD0);
 }
 
@@ -152,7 +161,8 @@ int direction;
 #define LEFT (1) // left and right really depends on perspective.....
 #define RIGHT (!LEFT)
 
-uint16_t get_target_time() {
+uint16_t get_target_time()
+{
     if (LEFT == direction) {
         if (measured_time_left > 1000) {
             return measured_time_left;
@@ -172,7 +182,8 @@ uint16_t get_target_time() {
     }
 }
 
-void process_pendulum(uint16_t time) {
+void process_pendulum(uint16_t time)
+{
     direction = !direction;
     if (direction == RIGHT)
         measured_time_left = time;
@@ -180,21 +191,25 @@ void process_pendulum(uint16_t time) {
         measured_time_right = time;
 }
 
-void wait_until(uint16_t time) {
-    while (time > get_time()) {}
+void wait_until(uint16_t time)
+{
+    while (time > get_time()) {
+    }
 }
 
 struct Snake snake;
 
-void init_snake() {
+void init_snake()
+{
     snake_init(&snake);
-    for( int i = 0; i < 9; i++) {
+    for (int i = 0; i < 9; i++) {
         snake_step(&snake);
         scan_strip();
     }
 }
 
-void process_debug_led() {
+void process_debug_led()
+{
     if (error_level == 0) {
         debug_led_off();
     } else {
@@ -206,7 +221,7 @@ void process_debug_led() {
 // improve timing and coordination between pendulum and ledsnake
 void process_coil_sensed(uint16_t coil_sensed_time) {}
 
-int main(int argc, char **argv)
+int main(int argc, char** argv)
 {
     ADC_Init();
     error_level_init();
@@ -237,7 +252,8 @@ int main(int argc, char **argv)
         }
 
         if (error_level >= 4) {
-            if (time > 35000) timer_reset();
+            if (time > 35000)
+                timer_reset();
             if (time < 10000) {
                 coil_on();
             } else {
@@ -275,27 +291,25 @@ int main(int argc, char **argv)
         //~ uint16_t current_position = time / (target_time/32);
 
         // the result is a fixed point number between 0 and 65536
-        uint32_t relative_time = (((uint32_t)time)<<16) / target_time;
+        uint32_t relative_time = (((uint32_t)time) << 16) / target_time;
         // this can happen, when the pendulum period changes.
-        if( (1<<16) >= relative_time ) {
-            relative_time = (1<<16) - 1;
+        if ((1 << 16) >= relative_time) {
+            relative_time = (1 << 16) - 1;
         }
         uint16_t current_position = get_position(relative_time);
 
-
-
         int step = current_position - p_position;
 
-        if( 1 < current_position && current_position < 10 ) {
+        if (1 < current_position && current_position < 10) {
             coil_on();
         } else {
             coil_off();
         }
 
-        for( int i = 0; i < step; i++ ) {
+        for (int i = 0; i < step; i++) {
             snake_step(&snake);
         }
-        if( 0 < step ) {
+        if (0 < step) {
             cli();
             scan_strip();
             sei();
@@ -303,4 +317,3 @@ int main(int argc, char **argv)
     }
     return 0;
 }
-

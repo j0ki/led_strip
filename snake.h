@@ -24,19 +24,17 @@
 #ifndef __SNAKE_H__
 #define __SNAKE_H__
 
-
 struct Snake {
     unsigned int head;
     unsigned int length;
 };
 
-void snake_set_position(struct Snake *s, unsigned int position);
+void snake_set_position(struct Snake* s, unsigned int position);
 
-void snake_draw(struct Snake *s);
+void snake_draw(struct Snake* s);
 
-void snake_step(struct Snake *snake);
+void snake_step(struct Snake* snake);
 
-void snake_init(struct Snake *s);
-
+void snake_init(struct Snake* s);
 
 #endif //__SNAKE_H__

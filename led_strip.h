@@ -24,13 +24,11 @@
 #ifndef __LED_STRIP_H__
 #define __LED_STRIP_H__
 
-
 #include <stdint.h>
-
 
 #define STRIP_LENGTH (30)
 
-#define MAX_COLOR (STRIP_LENGTH*3)
+#define MAX_COLOR (STRIP_LENGTH * 3)
 
 struct Led {
     uint8_t g;
@@ -47,7 +45,7 @@ void scan_strip();
 void leds_write_color(uint8_t color);
 void led_strip_write_colors(uint8_t green, uint8_t red, uint8_t blue);
 void led_strip_set_colors(int pos, uint8_t green, uint8_t red, uint8_t blue);
-void led_strip_set(int pos, struct Led *led_color);
+void led_strip_set(int pos, struct Led* led_color);
 
 //void set_led(int pos, struct Led color);
 void set_led_colors(int pos, uint8_t g, uint8_t r, uint8_t b);
