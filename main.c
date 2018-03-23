@@ -302,9 +302,9 @@ int main(int argc, char** argv)
         int step = current_position - p_position;
 
         snake_set_position(&snake, current_position);
-        snake_draw(&snake);
 
         if (current_position > p_position) {
+            snake_draw(&snake);
             cli();
             scan_strip();
             sei();
