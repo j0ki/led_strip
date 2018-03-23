@@ -11,11 +11,11 @@ rst = relative_step_times
 
 result = rst.map{|t|t*PERIOD/rst.sum}.map(&:floor)
 
-r = (0...steps).map{|k|Math.sin((PI/2)*k/steps)}.map{|t|t*PERIOD}.map(&:floor)
+r = (1..steps).map{|k|(PI/2) - Math.acos(k.to_f/steps)}.
+  map{|t|t*PERIOD/(PI/2)}.
+  map(&:floor)
 total = r + r.map{|t|2**16 - t}.reverse
 
-total[29] -= 1
-
 puts '{'
-total.each{|v|puts v.to_s+','}
+puts total * ",\n"
 puts '}'
