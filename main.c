@@ -157,13 +157,13 @@ void coil_off()
 
 uint16_t measured_time_left;
 uint16_t measured_time_right;
-int direction;
+int side;
 #define LEFT (1) // left and right really depends on perspective.....
 #define RIGHT (!LEFT)
 
 uint16_t get_target_time()
 {
-    if (LEFT == direction) {
+    if (LEFT == side) {
         if (measured_time_left > 1000) {
             return measured_time_left;
         } else if (measured_time_right > 1000) {
@@ -184,8 +184,8 @@ uint16_t get_target_time()
 
 void process_pendulum(uint16_t time)
 {
-    direction = !direction;
-    if (direction == RIGHT)
+    side = !side;
+    if (side == RIGHT)
         measured_time_left = time;
     else
         measured_time_right = time;
@@ -283,6 +283,8 @@ int main(int argc, char** argv)
 
         uint16_t target_time = get_target_time();
 
+        int snake_offset = (RIGHT == side) ? 29 : 0;
+
         //~ uint16_t current_position = ((uint32_t)time) * 30 / ((uint32_t)target_time);
         //~ uint16_t current_position = time / (target_time / 30);
         //this should be quicker, but it's 2 extra steps:
@@ -294,7 +296,7 @@ int main(int argc, char** argv)
         if ((1 << 16) >= relative_time) {
             relative_time = (1 << 16) - 1;
         }
-        uint16_t current_position = get_position(relative_time);
+        int current_position = get_position(relative_time);
 
         if (1 < current_position && current_position < 10) {
             coil_on();
@@ -304,7 +306,7 @@ int main(int argc, char** argv)
 
         int step = current_position - p_position;
 
-        snake_set_position(&snake, current_position);
+        snake_set_position(&snake, snake_offset + current_position);
 
         if (current_position > p_position) {
             snake_draw(&snake);
