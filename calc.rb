@@ -2,13 +2,13 @@
 
 include Math
 
-steps = 15
+steps = 14
 PERIOD = 2**15
 
-r = (1-steps..steps).map{|k|(PI/2) - Math.acos(k.to_f/steps)}.
-  map{|t|t*PERIOD/(PI/2)}.
-  map(&:floor)
-total = r[15,15] + r[0,15].map{|t|2**16 + t}
+r = (-14...14).map{|k|(PI/2) - Math.acos(k.to_f/14)}
+r = r.map{|t|t*PERIOD/(PI/2)}.map(&:floor)
+
+total = r[15,14] + r[0,15].map{|t|2**16 + t}
 
 total[29] -= 1
 
