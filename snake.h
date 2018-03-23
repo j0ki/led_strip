@@ -27,8 +27,12 @@
 
 struct Snake {
     unsigned int head;
-	unsigned int length;
+    unsigned int length;
 };
+
+void snake_set_position(struct Snake *s, unsigned int position);
+
+void snake_draw(struct Snake *s);
 
 void snake_step(struct Snake *snake);
 

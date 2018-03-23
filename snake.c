@@ -24,44 +24,54 @@
 #include "led_strip.h"
 #include "snake.h"
 
+
+#define INITIAL_POSITION (14)
+
 struct Led background_color;
 struct Led head_color;
 struct Led tail_color[2];
 
+
 void snake_step(struct Snake *s) {
+    s->head = s->head + 1; // don't care about int overflow at this time of writing
+}
+
+void snake_set_position(struct Snake *s, unsigned int position) {
+    s->head = INITIAL_POSITION + position;
+}
+
+void snake_draw(struct Snake *s) {
     clear_strip(7,7,15);
 
-    s->head = s->head + 1; // don't care about int overflow at this time of writing
-
     int tail = s->head - s->length;
-	for( int i = 0; i < s->length; i++ ) {
-		led_strip_set(mirror(tail, STRIP_LENGTH), &tail_color[i%2]);
-		tail += 1;
-	}
+        for( int i = 0; i < s->length; i++ ) {
+                led_strip_set(mirror(tail, STRIP_LENGTH), &tail_color[i%2]);
+                tail += 1;
+        }
     led_strip_set(mirror(s->head, STRIP_LENGTH), &head_color);
 }
 
 void snake_init(struct Snake *s) {
     s->length = 6;
 
-    s->head = s->length;
+    s->head = INITIAL_POSITION;
 
 
-	head_color.g = 15;
-	head_color.r = 100;
-	head_color.b = 15;
+        head_color.g = 15;
+        head_color.r = 100;
+        head_color.b = 15;
 
-	tail_color[0].g = 255;
-	tail_color[0].r = 70;
-	tail_color[0].b = 40;
+        tail_color[0].g = 255;
+        tail_color[0].r = 70;
+        tail_color[0].b = 40;
 
-	tail_color[1].g = 120;
-	tail_color[1].r = 70;
-	tail_color[1].b = 40;
+        tail_color[1].g = 120;
+        tail_color[1].r = 70;
+        tail_color[1].b = 40;
 
-	background_color.g = 7;
-	background_color.r = 7;
-	background_color.b = 15;
+        background_color.g = 7;
+        background_color.r = 7;
+        background_color.b = 15;
 
-	//background_color = {.g=7, .r=7, .b=15};
+        //background_color = {.g=7, .r=7, .b=15};
 }
