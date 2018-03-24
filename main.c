@@ -46,6 +46,15 @@ void debug_led_off()
     PORTD |= _BV(PD1);
 }
 
+void process_debug_led()
+{
+    if (error_level == 0) {
+        debug_led_off();
+    } else {
+        debug_led_on();
+    }
+}
+
 volatile int error_level;
 
 void error_level_init()
@@ -203,15 +212,6 @@ void init_snake()
         scan_strip();
         sei();
         _delay_ms(10);
-    }
-}
-
-void process_debug_led()
-{
-    if (error_level == 0) {
-        debug_led_off();
-    } else {
-        debug_led_on();
     }
 }
 
