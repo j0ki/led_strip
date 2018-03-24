@@ -38,6 +38,11 @@
 
 #include <avr/io.h>
 
+void debug_led_init()
+{
+    DDRD |= _BV(PD1);
+}
+
 void debug_led_on()
 {
     PORTD &= ~_BV(PD1);
@@ -59,9 +64,6 @@ void process_debug_led()
 
 void coil_init()
 {
-    //debug led output pin
-    DDRD |= _BV(PD1);
-
     //coil actor output pin
     DDRD |= _BV(PD0);
 
@@ -151,6 +153,7 @@ void process_coil_sensed(uint16_t coil_sensed_time)
 
 int main(int argc, char** argv)
 {
+    debug_led_init();
     ADC_Init();
     coil_init();
     timer_and_watchdog_init();
