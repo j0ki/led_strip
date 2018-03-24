@@ -30,7 +30,7 @@
 #include "led_strip.h"
 #include "snake.h"
 
-#include "adc.h"
+#include "coil.h"
 
 #include "pendulum.h"
 
@@ -60,34 +60,6 @@ void process_debug_led()
     } else {
         debug_led_on();
     }
-}
-
-void coil_init()
-{
-    //coil actor output pin
-    DDRD |= _BV(PD0);
-
-    //coil sensor int0 input pin
-    DDRD &= ~_BV(PD2);
-
-    //maybe use int0 later for finer tuning
-    //general interupt control register:
-    //enable int0
-    //GICR |= _BV(INT0);
-
-    //rising edge triggers int0
-    //MCUCR |= _BV(ISC00);
-    //MCUCR |= _BV(ISC01);
-}
-
-void coil_on()
-{
-    PORTD |= _BV(PD0);
-}
-
-void coil_off()
-{
-    PORTD &= ~_BV(PD0);
 }
 
 #define DEFAULT_TIME (34000)
@@ -154,7 +126,6 @@ void process_coil_sensed(uint16_t coil_sensed_time)
 int main(int argc, char** argv)
 {
     debug_led_init();
-    ADC_Init();
     coil_init();
     timer_and_watchdog_init();
     led_strip_init();
@@ -189,8 +160,8 @@ int main(int argc, char** argv)
             }
         }
 
-        //if ( !(PIND & _BV(PD2)) ) {
-        if (ADC_Read() < 200) {
+        //if (coil_sensor_pin()) {
+        if (coil_sensor_adc()) {
             if (0 == coil_sensed) {
                 timer_reset();
                 coil_sensed = 1;
