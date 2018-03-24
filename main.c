@@ -266,6 +266,7 @@ int main(int argc, char** argv)
             if (0 == coil_sensed) {
                 timer_reset();
                 coil_sensed = 1;
+                speed += 1;
             } else {
                 coil_sensed = (0 < time) ? time : 1;
             }
