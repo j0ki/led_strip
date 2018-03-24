@@ -53,7 +53,7 @@ uint16_t position_lut[] = {
     65535
 };
 
-int get_position(uint16_t time)
+unsigned int get_position(uint16_t time)
 {
     for (int i = 0; i < 28; i++) {
         if (time <= position_lut[i]) {

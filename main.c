@@ -307,7 +307,7 @@ int main(int argc, char** argv)
         if ((1 << 16) >= relative_time) {
             relative_time = (1 << 16) - 1;
         }
-        int current_position = get_position(relative_time);
+        unsigned int current_position = get_position(relative_time);
 
         if (1 < current_position && current_position < 10) {
             coil_on();
