@@ -34,6 +34,8 @@
 
 #include "pendulum.h"
 
+#include "timer_and_watchdog.h"
+
 #include <avr/io.h>
 
 void debug_led_on()
@@ -48,87 +50,11 @@ void debug_led_off()
 
 void process_debug_led()
 {
-    if (error_level == 0) {
+    if (get_error_level() == 0) {
         debug_led_off();
     } else {
         debug_led_on();
     }
-}
-
-volatile int error_level;
-
-void error_level_init()
-{
-    error_level = 5;
-}
-
-inline void watchdog_bark()
-{
-    if (error_level < 10) {
-        error_level += 3;
-    }
-}
-
-ISR(TIMER1_OVF_vect)
-{
-    watchdog_bark();
-}
-
-void timer_reset()
-{
-    cli();
-    //the order of writing registers is important
-    //_T_imer _C_ou_NT_er for timer_1_ (high and low)
-    TCNT1H = 0;
-    TCNT1L = 0;
-    sei();
-}
-
-void timer_init()
-{
-    //disable all interrupt while setting up timer
-    cli();
-    //timer interrupt mask register
-    //TIMSK1
-
-    //timer control register A
-    //TCCR1A
-
-    //TCCR1B: timer control register B
-    //set prescaler to 1:256
-    // with 8MHz -> overflow after 2.097152 seconds
-    //  and resolution: 32us
-    TCCR1B |= _BV(CS12);
-    TCCR1B &= ~_BV(CS11);
-    TCCR1B &= ~_BV(CS10);
-
-    //TIMSK: timer interrupt mask
-    //(general timer interrupt register)
-
-    // _T_imer _O_verflow _I_nterrupt _E_nable at timer_1_
-    TIMSK |= _BV(TOIE1);
-
-    //the order of writing registers is important
-    //set timer compare register to 2 seconds
-    //OCR1H = 62000 / 256;
-    //OCR1L = 62000 % 256;
-
-    sei();
-}
-
-uint16_t timer_read()
-{
-    cli();
-    //the order of reading registers is important
-    volatile uint16_t t = TCNT1L;
-    t += TCNT1H * 256;
-    sei(); // concurrency problem, but ignore it for now.
-    return t;
-}
-
-uint16_t get_time()
-{
-    return timer_read();
 }
 
 void coil_init()
@@ -226,9 +152,8 @@ void process_coil_sensed(uint16_t coil_sensed_time)
 int main(int argc, char** argv)
 {
     ADC_Init();
-    error_level_init();
     coil_init();
-    timer_init();
+    timer_and_watchdog_init();
     led_strip_init();
 
     init_snake();
@@ -245,13 +170,13 @@ int main(int argc, char** argv)
 
         uint16_t time = get_time();
 
-        if (error_level > 0) {
+        if (get_error_level() > 0) {
             p_position = 0;
             speed = 0;
             snake_set_position(&snake, 0);
         }
 
-        if (error_level >= 4) {
+        if (get_error_level() >= 4) {
             if (time > 35000)
                 timer_reset();
             if (time < 10000) {
@@ -271,7 +196,7 @@ int main(int argc, char** argv)
                 coil_sensed = (0 < time) ? time : 1;
             }
 
-            error_level = 0;
+            set_error_level(0);
 
             process_pendulum(time);
 
