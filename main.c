@@ -215,9 +215,13 @@ void process_debug_led()
     }
 }
 
-//TODO: implement!
+uint16_t sensor_time;
+
 // improve timing and coordination between pendulum and ledsnake
-void process_coil_sensed(uint16_t coil_sensed_time) {}
+void process_coil_sensed(uint16_t coil_sensed_time)
+{
+    sensor_time = coil_sensed_time; //TODO: fine tune
+}
 
 int main(int argc, char** argv)
 {
@@ -279,9 +283,18 @@ int main(int argc, char** argv)
             coil_sensed = 0;
         }
 
-        uint16_t target_time = get_target_time();
+        uint16_t target_time = get_target_time() + sensor_time;
 
-        int snake_offset = (RIGHT == side) ? 29 : 0;
+        unsigned int snake_offset = (RIGHT == side) ? 29 : 58;
+
+        if (time < sensor_time / 2) {
+            time = 0;
+            if (time < sensor_time/4) {
+                snake_offset -= 1;
+            }
+        } else {
+            time = time - sensor_time / 2;
+        }
 
         //~ uint16_t current_position = ((uint32_t)time) * 30 / ((uint32_t)target_time);
         //~ uint16_t current_position = time / (target_time / 30);
