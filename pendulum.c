@@ -21,8 +21,10 @@
  *
  */
 
-// 28 positions
+// x positions ---- TODO: in real hardware test which value is good
+#define NUM_POSITIONS (28)
 uint16_t position_lut[] = {
+    //~ 0,
     1491,
     2990,
     4505,
@@ -55,10 +57,10 @@ uint16_t position_lut[] = {
 
 unsigned int get_position(uint16_t time)
 {
-    for (int i = 0; i < 28; i++) {
+    for (int i = 0; i < NUM_POSITIONS; i++) {
         if (time <= position_lut[i]) {
             return i;
         }
     }
-    return 28; // this will not happen
+    return NUM_POSITIONS; // this will not happen
 }
