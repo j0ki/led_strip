@@ -27,7 +27,6 @@
 //TODO: in real hardware test which value is good
 #define INITIAL_POSITION (15)
 
-struct Led background_color;
 struct Led head_color;
 struct Led tail_color[2];
 
@@ -53,27 +52,52 @@ void snake_draw(struct Snake* s)
     led_strip_set(mirror(s->head, STRIP_LENGTH), &head_color);
 }
 
+void snake_color_mode(int mode)
+{
+    if (mode == 0) {
+        head_color.g = 15;
+        head_color.r = 100;
+        head_color.b = 15;
+
+        tail_color[0].g = 255;
+        tail_color[0].r = 70;
+        tail_color[0].b = 40;
+
+        tail_color[1].g = 120;
+        tail_color[1].r = 70;
+        tail_color[1].b = 40;
+    } else if (mode == 1) {
+        head_color.g = 100;
+        head_color.r = 15;
+        head_color.b = 15;
+
+        tail_color[0].g = 70;
+        tail_color[0].r = 255;
+        tail_color[0].b = 40;
+
+        tail_color[1].g = 70;
+        tail_color[1].r = 120;
+        tail_color[1].b = 40;
+    } else {
+        head_color.g = 15;
+        head_color.r = 15;
+        head_color.b = 255;
+
+        tail_color[0].g = 255;
+        tail_color[0].r = 70;
+        tail_color[0].b = 40;
+
+        tail_color[1].g = 70;
+        tail_color[1].r = 255;
+        tail_color[1].b = 40;
+    }
+}
+
 void snake_init(struct Snake* s)
 {
     s->length = 6;
 
     s->head = INITIAL_POSITION;
 
-    head_color.g = 15;
-    head_color.r = 100;
-    head_color.b = 15;
-
-    tail_color[0].g = 255;
-    tail_color[0].r = 70;
-    tail_color[0].b = 40;
-
-    tail_color[1].g = 120;
-    tail_color[1].r = 70;
-    tail_color[1].b = 40;
-
-    background_color.g = 7;
-    background_color.r = 7;
-    background_color.b = 15;
-
-    //background_color = {.g=7, .r=7, .b=15};
+    snake_color_mode(2);
 }
