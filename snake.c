@@ -24,7 +24,8 @@
 #include "snake.h"
 #include "led_strip.h"
 
-#define INITIAL_POSITION (14)
+//TODO: in real hardware test which value is good
+#define INITIAL_POSITION (15)
 
 struct Led background_color;
 struct Led head_color;
