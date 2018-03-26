@@ -52,9 +52,10 @@ void debug_led_off()
     PORTD |= _BV(PD1);
 }
 
-void process_debug_led()
+void process_debug_led(uint16_t current, uint16_t mod)
 {
-    if (get_error_level() == 0) {
+    current %= mod;
+    if (current < mod / 2) {
         debug_led_off();
     } else {
         debug_led_on();
