@@ -128,3 +128,19 @@ uint16_t get_time()
 {
     return timer_read();
 }
+
+uint16_t get_time_seconds()
+{
+    uint32_t time = timer_read();
+    return time * PRESCALER / F_CPU;
+}
+
+uint16_t get_time_milliseconds()
+{
+    uint32_t time = timer_read();
+    //maximum PRESCALER is 1024 (10bit)
+    //that means:
+    //we have at least 6 unused bits we can use for precision
+    time = (time<<6) * PRESCALER / F_CPU * 1000;
+    return (time>>6);
+}
