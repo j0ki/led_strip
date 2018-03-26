@@ -21,6 +21,9 @@
  *
  */
 
+
+#include <avr/io.h> //very bad, but we need the uint16_t typedef from somewhere
+
 // x positions ---- TODO: in real hardware test which value is good
 #define NUM_POSITIONS (28)
 uint16_t position_lut[] = {
