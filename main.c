@@ -126,6 +126,11 @@ uint16_t sensor_time;
 void process_coil_sensed(uint16_t coil_sensed_time)
 {
     sensor_time = coil_sensed_time; //TODO: fine tune
+    if (side == RIGHT) {
+        snake_color_mode(0);
+    } else {
+        snake_color_mode(1);
+    }
 }
 
 int main(int argc, char** argv)
