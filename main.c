@@ -133,6 +133,11 @@ void process_coil_sensed(uint16_t coil_sensed_time)
     }
 }
 
+#define P_RESET (0)
+#define P_TESTING (1)
+#define P_SWINGING (2)
+int pendulum_state;
+
 int main(int argc, char** argv)
 {
     debug_led_init();
