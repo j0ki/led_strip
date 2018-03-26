@@ -77,12 +77,13 @@ void timer_init()
     //TCCR1A
 
     //TCCR1B: timer control register B
-    //set prescaler to 1:256
-    // with 8MHz -> overflow after 2.097152 seconds
-    //  and resolution: 32us
+
+    //set prescaler to 1:1024
+    // with 8MHz -> overflow after 8.388608 seconds
+    //  and resolution: 128us
     TCCR1B |= _BV(CS12);
     TCCR1B &= ~_BV(CS11);
-    TCCR1B &= ~_BV(CS10);
+    TCCR1B |= _BV(CS10);
 
     //TIMSK: timer interrupt mask
     //(general timer interrupt register)
