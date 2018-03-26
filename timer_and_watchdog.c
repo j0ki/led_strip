@@ -22,6 +22,11 @@
  */
 
 
+#include "time_defs.h"
+
+#include <avr/interrupt.h>
+#include <avr/io.h>
+
 volatile int error_level;
 
 void error_level_init()
