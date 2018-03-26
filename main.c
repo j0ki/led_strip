@@ -62,7 +62,8 @@ void process_debug_led(uint16_t current, uint16_t mod)
     }
 }
 
-#define DEFAULT_TIME (34000)
+#define PUSH_TIME (1250) // in milliseconds
+#define DEFAULT_TIME (1250) // in milliseconds
 
 uint16_t measured_time_left;
 uint16_t measured_time_right;
@@ -73,17 +74,17 @@ int side;
 uint16_t get_target_time()
 {
     if (LEFT == side) {
-        if (measured_time_left > 1000) {
+        if (measured_time_left > 250) {
             return measured_time_left;
-        } else if (measured_time_right > 1000) {
+        } else if (measured_time_right > 250) {
             return measured_time_right;
         } else {
             return DEFAULT_TIME;
         }
     } else {
-        if (measured_time_right > 1000) {
+        if (measured_time_right > 250) {
             return measured_time_right;
-        } else if (measured_time_left > 1000) {
+        } else if (measured_time_left > 250) {
             return measured_time_left;
         } else {
             return DEFAULT_TIME;
