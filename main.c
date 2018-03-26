@@ -109,6 +109,7 @@ struct Snake snake;
 void init_snake()
 {
     snake_init(&snake);
+    snake_color_mode(0);
     for (int i = 0; i < 30; i++) {
         snake_set_position(&snake, i);
         snake_draw(&snake);
