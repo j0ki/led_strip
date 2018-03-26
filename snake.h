@@ -37,4 +37,6 @@ void snake_step(struct Snake* snake);
 
 void snake_init(struct Snake* s);
 
+void snake_color_mode(int mode);
+
 #endif //__SNAKE_H__
