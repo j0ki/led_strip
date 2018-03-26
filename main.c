@@ -21,11 +21,12 @@
  *
  */
 
-#define F_CPU 8000000UL // 8 MHz
-//#define F_CPU 14.7456E6
+#include "time_defs.h"
+
 #include <util/delay.h>
 
 #include <avr/interrupt.h>
+#include <avr/io.h>
 
 #include "led_strip.h"
 #include "snake.h"
@@ -35,8 +36,6 @@
 #include "pendulum.h"
 
 #include "timer_and_watchdog.h"
-
-#include <avr/io.h>
 
 void debug_led_init()
 {
