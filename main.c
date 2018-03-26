@@ -121,6 +121,8 @@ void init_snake()
 }
 
 uint16_t sensor_time;
+uint16_t sensor_last_edge;
+int last_sensor = 0;
 
 // improve timing and coordination between pendulum and ledsnake
 void process_coil_sensed(uint16_t coil_sensed_time)
@@ -151,94 +153,117 @@ int main(int argc, char** argv)
 
     int speed = 0;
 
-    int coil_sensed = 0;
+    uint16_t coil_active = 0;
 
     timer_reset();
     while (1) {
-        process_debug_led();
 
-        uint16_t time = get_time();
+        //uint16_t seconds = get_time_seconds();
 
-        if (get_error_level() > 0) {
-            p_position = 0;
-            speed = 0;
-            snake_set_position(&snake, 0);
-        }
+        uint16_t milliseconds = get_time_milliseconds();
 
-        if (get_error_level() >= 4) {
-            if (time > 35000)
+        //uint16_t time = get_time();
+
+        int error = get_error_level(); //maybe remove error levels
+        //in favor of p_states
+
+        if (P_RESET == pendulum_state) {
+            process_debug_led(milliseconds, 500);
+            if (milliseconds >= PUSH_TIME * 11 / 3) {
+                pendulum_state = P_TESTING;
                 timer_reset();
-            if (time < 10000) {
+                continue;
+            }
+
+            if ((PUSH_TIME / 4) > (milliseconds % PUSH_TIME)) {
                 coil_on();
             } else {
                 coil_off();
             }
         }
 
-        //if (coil_sensor_pin()) {
-        if (coil_sensor_adc()) {
-            if (0 == coil_sensed) {
+        if (P_TESTING == pendulum_state) {
+            process_debug_led(milliseconds, 250);
+            if (milliseconds >= 2 * PUSH_TIME) {
+                pendulum_state = P_RESET;
                 timer_reset();
-                coil_sensed = 1;
-                speed += 1;
+                continue;
+            }
+            if (coil_sensor_adc()) {
+                pendulum_state = P_SWINGING;
+                timer_reset();
+                continue;
+            }
+        }
+
+        if (P_SWINGING == pendulum_state) {
+            if (coil_active) {
+                debug_led_on();
             } else {
-                coil_sensed = (0 < time) ? time : 1;
+                debug_led_off();
+            }
+            if (milliseconds >= 5000) {
+                pendulum_state = P_RESET;
+                timer_reset();
+                continue;
             }
 
-            set_error_level(0);
+            uint16_t target_time = get_target_time(); // + sensor_time;
 
-            process_pendulum(time);
+            //~ uint16_t current_position = ((uint32_t)time) * 30 / ((uint32_t)target_time);
+            //~ uint16_t current_position = time / (target_time / 30);
+            //this should be quicker, but it's 2 extra steps:
+            //~ uint16_t current_position = time / (target_time/32);
 
-            p_position = 0;
+            // the result is a fixed point number between 0 and 65536
+            uint32_t relative_time = (((uint32_t)milliseconds) << 16) / target_time;
+            // this can happen, when the pendulum period changes.
+            //if (((uint32_t)1 << 16) >= relative_time) {
+            //    relative_time = ((uint32_t)1 << 16) - 1;
+            //}
+            //unsigned int current_position = get_position(relative_time);
+            unsigned int current_position = relative_time / 2184;
 
-        } else {
-            if (0 < coil_sensed) {
-                process_coil_sensed(coil_sensed);
+            unsigned int snake_offset = (RIGHT == side) ? 29 : 58;
+
+            snake_set_position(&snake, snake_offset + current_position);
+
+            if (current_position > p_position) {
+                snake_draw(&snake);
+                cli();
+                scan_strip();
+                sei();
             }
-            coil_sensed = 0;
-        }
+            p_position = current_position;
 
-        uint16_t target_time = get_target_time() + sensor_time;
-
-        unsigned int snake_offset = (RIGHT == side) ? 29 : 58;
-
-        if (time < sensor_time / 2) {
-            time = 0;
-            if (time < sensor_time/4) {
-                snake_offset -= 1;
+            if (target_time / 4 + 20 < milliseconds) {
+                coil_active = 0;
+            } else if (target_time / 4 < milliseconds) {
+                coil_off();
+            } else if (10 < milliseconds) {
+                coil_on();
             }
-        } else {
-            time = time - sensor_time / 2;
+
+            if (coil_active) {
+                continue;
+            }
+
+            int sensor = coil_sensor_adc();
+            if (sensor != last_sensor && milliseconds > sensor_last_edge) {
+                sensor_last_edge = milliseconds;
+                last_sensor = sensor;
+                if (!sensor) {
+                    process_coil_sensed(milliseconds);
+                } else {
+                    process_pendulum(milliseconds);
+                    snake_color_mode(2);
+                    coil_active = 1;
+                    speed += 1;
+                    sensor_last_edge = 0;
+                    timer_reset();
+                }
+            }
         }
-
-        //~ uint16_t current_position = ((uint32_t)time) * 30 / ((uint32_t)target_time);
-        //~ uint16_t current_position = time / (target_time / 30);
-        //this should be quicker, but it's 2 extra steps:
-        //~ uint16_t current_position = time / (target_time/32);
-
-        // the result is a fixed point number between 0 and 65536
-        uint32_t relative_time = (((uint32_t)time) << 16) / target_time;
-        // this can happen, when the pendulum period changes.
-        if ((1 << 16) >= relative_time) {
-            relative_time = (1 << 16) - 1;
-        }
-        unsigned int current_position = get_position(relative_time);
-
-        if (1 < current_position && current_position < 10) {
-            coil_on();
-        } else {
-            coil_off();
-        }
-
-        snake_set_position(&snake, snake_offset + current_position);
-
-        if (current_position > p_position) {
-            snake_draw(&snake);
-            cli();
-            scan_strip();
-            sei();
-        }
-        p_position = current_position;
     }
     return 0;
 }
