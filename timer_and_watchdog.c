@@ -88,15 +88,24 @@ void timer_init()
     //TIMSK: timer interrupt mask
     //(general timer interrupt register)
 
-    // _T_imer _O_verflow _I_nterrupt _E_nable at timer_1_
-    TIMSK |= _BV(TOIE1);
-
     //the order of writing registers is important
     //set timer compare register to 2 seconds
     //OCR1H = 62000 / 256;
     //OCR1L = 62000 % 256;
 
     sei();
+}
+
+void watchdog_on()
+{
+    // _T_imer _O_verflow _I_nterrupt _E_nable at timer_1_
+    TIMSK |= _BV(TOIE1);
+}
+
+void watchdog_off()
+{
+    // _T_imer _O_verflow _I_nterrupt _E_nable at timer_1_
+    TIMSK &= ~_BV(TOIE1);
 }
 
 void timer_and_watchdog_init()

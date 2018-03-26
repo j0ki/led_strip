@@ -24,6 +24,8 @@
 
 void timer_reset();
 void timer_and_watchdog_init();
+void watchdog_on();
+void watchdog_off();
 uint16_t get_time();
 int get_error_level();
 void set_error_level(int level);
