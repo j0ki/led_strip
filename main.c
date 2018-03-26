@@ -95,10 +95,13 @@ uint16_t get_target_time()
 void process_pendulum(uint16_t time)
 {
     side = !side;
-    if (side == RIGHT)
+    if (side == RIGHT) {
         measured_time_left = time;
-    else
+        snake_color_mode(0); //TODO: remove this line
+    } else {
         measured_time_right = time;
+        snake_color_mode(1); //TODO: remove this line
+    }
 }
 
 struct Snake snake;
