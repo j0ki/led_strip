@@ -137,12 +137,15 @@ uint16_t get_time_seconds()
     return time * PRESCALER / F_CPU;
 }
 
+//TODO: test this more precise calculation
 uint16_t get_time_milliseconds()
 {
     uint32_t time = timer_read();
+    //assume F_CPU has some decimal zeros
+    uint32_t divisor = F_CPU / 1000;
     //maximum PRESCALER is 1024 (10bit)
     //that means:
     //we have at least 6 unused bits we can use for precision
-    time = (time<<6) * PRESCALER / F_CPU * 1000;
+    time = (time<<6) * PRESCALER / divisor;
     return (time>>6);
 }
