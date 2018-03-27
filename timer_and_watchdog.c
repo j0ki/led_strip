@@ -66,6 +66,7 @@ void timer_reset()
     sei();
 }
 
+//TODO: clean up comments in these functions
 void timer_init()
 {
     //disable all interrupt while setting up timer
@@ -78,6 +79,7 @@ void timer_init()
 
     //TCCR1B: timer control register B
 
+    //TODO: make these registers a function of the PRESCALER macro
     //set prescaler to 1:1024
     // with 8MHz -> overflow after 8.388608 seconds
     //  and resolution: 128us
