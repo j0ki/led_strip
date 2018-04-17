@@ -64,6 +64,8 @@ void process_debug_led(uint16_t current, uint16_t mod)
 
 #define PUSH_TIME (1250) // in milliseconds
 #define DEFAULT_TIME (1250) // in milliseconds
+#define MINIMUM_TIME (100) //in milliseconds
+#define MAXIMUM_TIME (1300) //in milliseconds
 
 uint16_t measured_time_left;
 uint16_t measured_time_right;
@@ -73,23 +75,24 @@ int side;
 
 uint16_t get_target_time()
 {
+	uint16_t target_time = DEFAULT_TIME;
     if (LEFT == side) {
-        if (measured_time_left > 250) {
-            return measured_time_left;
-        } else if (measured_time_right > 250) {
-            return measured_time_right;
-        } else {
-            return DEFAULT_TIME;
+        if (measured_time_left > MINIMUM_TIME) {
+            target_time = measured_time_left;
+        } else if (measured_time_right > MINIMUM_TIME) {
+            target_time = measured_time_right;
         }
     } else {
-        if (measured_time_right > 250) {
-            return measured_time_right;
-        } else if (measured_time_left > 250) {
-            return measured_time_left;
-        } else {
-            return DEFAULT_TIME;
+        if (measured_time_right > MINIMUM_TIME) {
+            target_time = measured_time_right;
+        } else if (measured_time_left > MINIMUM_TIME) {
+            target_time = measured_time_left;
         }
     }
+	if (MAXIMUM_TIME < target_time) {
+		target_time = MAXIMUM_TIME;
+	}
+	return target_time;
 }
 
 void process_pendulum(uint16_t time)
@@ -97,10 +100,8 @@ void process_pendulum(uint16_t time)
     side = !side;
     if (side == RIGHT) {
         measured_time_left = time;
-        snake_color_mode(0); //TODO: remove this line
     } else {
         measured_time_right = time;
-        snake_color_mode(1); //TODO: remove this line
     }
 }
 
@@ -120,14 +121,12 @@ void init_snake()
     }
 }
 
-uint16_t sensor_time;
 uint16_t sensor_last_edge;
 int last_sensor = 0;
 
 // improve timing and coordination between pendulum and ledsnake
-void process_coil_sensed(uint16_t coil_sensed_time)
+void process_coil_sensed()
 {
-    sensor_time = coil_sensed_time; //TODO: fine tune
     if (side == RIGHT) {
         snake_color_mode(0);
     } else {
@@ -138,7 +137,6 @@ void process_coil_sensed(uint16_t coil_sensed_time)
 #define P_RESET (0)
 #define P_TESTING (1)
 #define P_SWINGING (2)
-int pendulum_state;
 
 int main(int argc, char** argv)
 {
@@ -149,23 +147,15 @@ int main(int argc, char** argv)
 
     init_snake();
 
-    int p_position = 0;
+	int pendulum_state = P_TESTING;
 
-    int speed = 0;
+    int p_position = 0;
 
     uint16_t coil_active = 0;
 
     timer_reset();
     while (1) {
-
-        //uint16_t seconds = get_time_seconds();
-
         uint16_t milliseconds = get_time_milliseconds();
-
-        //uint16_t time = get_time();
-
-        int error = get_error_level(); //maybe remove error levels
-        //in favor of p_states
 
         if (P_RESET == pendulum_state) {
             process_debug_led(milliseconds, 500);
@@ -208,23 +198,14 @@ int main(int argc, char** argv)
                 continue;
             }
 
-            uint16_t target_time = get_target_time(); // + sensor_time;
-
-            //~ uint16_t current_position = ((uint32_t)time) * 30 / ((uint32_t)target_time);
-            //~ uint16_t current_position = time / (target_time / 30);
-            //this should be quicker, but it's 2 extra steps:
-            //~ uint16_t current_position = time / (target_time/32);
+            uint16_t target_time = get_target_time();
 
             // the result is a fixed point number between 0 and 65536
             uint32_t relative_time = (((uint32_t)milliseconds) << 16) / target_time;
-            // this can happen, when the pendulum period changes.
-            //if (((uint32_t)1 << 16) >= relative_time) {
-            //    relative_time = ((uint32_t)1 << 16) - 1;
-            //}
-            //unsigned int current_position = get_position(relative_time);
-            unsigned int current_position = relative_time / 2184;
 
-            unsigned int snake_offset = (RIGHT == side) ? 29 : 58;
+            unsigned int current_position = get_position(relative_time);
+
+            unsigned int snake_offset = (RIGHT == side) ? 30 : 59;
 
             snake_set_position(&snake, snake_offset + current_position);
 
@@ -236,7 +217,7 @@ int main(int argc, char** argv)
             }
             p_position = current_position;
 
-            if (target_time / 4 + 20 < milliseconds) {
+            if (target_time / 4 + 50 < milliseconds) {
                 coil_active = 0;
             } else if (target_time / 4 < milliseconds) {
                 coil_off();
@@ -253,12 +234,11 @@ int main(int argc, char** argv)
                 sensor_last_edge = milliseconds;
                 last_sensor = sensor;
                 if (!sensor) {
-                    process_coil_sensed(milliseconds);
+                    process_coil_sensed();
                 } else {
                     process_pendulum(milliseconds);
                     snake_color_mode(2);
                     coil_active = 1;
-                    speed += 1;
                     sensor_last_edge = 0;
                     timer_reset();
                 }
