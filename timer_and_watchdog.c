@@ -24,37 +24,8 @@
 
 #include "time_defs.h"
 
-#include <avr/interrupt.h>
 #include <avr/io.h>
 
-volatile int error_level;
-
-void error_level_init()
-{
-    error_level = 5;
-}
-
-int get_error_level()
-{
-    return error_level;
-}
-
-void set_error_level(int level)
-{
-    error_level = level;
-}
-
-inline void watchdog_bark()
-{
-    if (error_level < 10) {
-        error_level += 3;
-    }
-}
-
-ISR(TIMER1_OVF_vect)
-{
-    watchdog_bark();
-}
 
 void timer_reset()
 {
@@ -98,24 +69,6 @@ void timer_init()
     sei();
 }
 
-void watchdog_on()
-{
-    // _T_imer _O_verflow _I_nterrupt _E_nable at timer_1_
-    TIMSK |= _BV(TOIE1);
-}
-
-void watchdog_off()
-{
-    // _T_imer _O_verflow _I_nterrupt _E_nable at timer_1_
-    TIMSK &= ~_BV(TOIE1);
-}
-
-void timer_and_watchdog_init()
-{
-    error_level_init();
-    timer_init();
-}
-
 uint16_t timer_read()
 {
     cli();
@@ -137,7 +90,6 @@ uint16_t get_time_seconds()
     return time * PRESCALER / F_CPU;
 }
 
-//TODO: test this more precise calculation
 uint16_t get_time_milliseconds()
 {
     uint32_t time = timer_read();

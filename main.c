@@ -142,7 +142,7 @@ int main(int argc, char** argv)
 {
     debug_led_init();
     coil_init();
-    timer_and_watchdog_init();
+    timer_init();
     led_strip_init();
 
     init_snake();
